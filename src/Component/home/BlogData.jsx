@@ -68,7 +68,7 @@ export default function BlogData() {
                             alt={blog.title}
                             width={400}
                             height={250}
-                            className="h-[180px] w-full object-cover"
+                            className="h-45 w-full object-cover"
                         />
 
                         <div className="p-4">

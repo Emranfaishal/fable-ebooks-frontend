@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { Button } from "@heroui/react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import Image from "next/image";
@@ -26,6 +27,28 @@ const slides = [
     },
 ];
 
+const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.2,
+        },
+    },
+};
+
+const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        transition: {
+            duration: 0.8,
+            ease: "easeOut",
+        },
+    },
+};
+
 export default function HeroBanner() {
     const [current, setCurrent] = useState(0);
 
@@ -41,50 +64,71 @@ export default function HeroBanner() {
 
     return (
         <div className="relative overflow-hidden rounded-3xl bg-sky-400">
-            <div className="grid min-h-[420px] md:grid-cols-2">
+            <div className="grid min-h-125 md:grid-cols-2">
 
                 {/* Left Content */}
-                <div className="flex flex-col justify-center px-8 md:px-16 text-white">
-                    <h1 className="text-4xl md:text-6xl font-bold leading-tight">
-                        {slides[current].title}
-                    </h1>
-
-                    <p className="mt-4 text-lg text-white/90">
-                        {slides[current].description}
-                    </p>
-
-                    <Button
-                        color="danger"
-                        className="mt-8 w-fit font-semibold"
+                <motion.div
+                    key={current}
+                    className="flex flex-col justify-center px-8 md:px-16 text-white"
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                >
+                    <motion.h1
+                        variants={itemVariants}
+                        className="text-4xl md:text-6xl font-bold leading-tight"
                     >
-                        See All Books
-                    </Button>
-                </div>
+                        {slides[current].title}
+                    </motion.h1>
+
+                    <motion.p
+                        variants={itemVariants}
+                        className="mt-4 text-lg text-white/90"
+                    >
+                        {slides[current].description}
+                    </motion.p>
+
+                    <motion.div variants={itemVariants}>
+                        <Button
+                            color="danger"
+                            className="mt-8 w-fit font-semibold"
+                        >
+                            See All Books
+                        </Button>
+                    </motion.div>
+                </motion.div>
 
                 {/* Right Image */}
-                <div className="flex items-center justify-center p-6">
+                <motion.div
+                    key={`image-${current}`}
+                    className="flex items-center justify-center p-6"
+                    initial={{ opacity: 0, x: 50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.8 }}
+                >
                     <Image
                         src={slides[current].image}
                         alt="Book Cover"
-                        width={300}
-                        height={400}
-                        className="rounded-lg h-88 w-auto object-cover shadow-xl"
+                        width={320}
+                        height={420}
+                        className="rounded-xl h-105 w-auto object-cover shadow-2xl"
+                        priority
                     />
-                </div>
+                </motion.div>
             </div>
 
-            {/* Left Arrow */}
+            {/* Previous Button */}
             <button
                 onClick={prevSlide}
-                className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white p-3 shadow-lg"
+                className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white p-3 shadow-lg hover:scale-110 transition"
             >
                 <FaChevronLeft />
             </button>
 
-            {/* Right Arrow */}
+            {/* Next Button */}
             <button
                 onClick={nextSlide}
-                className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white p-3 shadow-lg"
+                className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white p-3 shadow-lg hover:scale-110 transition"
             >
                 <FaChevronRight />
             </button>
@@ -95,9 +139,9 @@ export default function HeroBanner() {
                     <button
                         key={index}
                         onClick={() => setCurrent(index)}
-                        className={`h-3 w-3 rounded-full ${current === index
-                            ? "bg-white"
-                            : "bg-white/50"
+                        className={`h-3 w-3 rounded-full transition-all ${current === index
+                                ? "bg-white scale-125"
+                                : "bg-white/50"
                             }`}
                     />
                 ))}
