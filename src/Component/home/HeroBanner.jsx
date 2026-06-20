@@ -63,13 +63,13 @@ export default function HeroBanner() {
     };
 
     return (
-        <div className="relative overflow-hidden rounded-3xl bg-sky-400">
+        <div className="relative overflow-hidden rounded-3xl bg-gray-300">
             <div className="grid min-h-125 md:grid-cols-2">
 
                 {/* Left Content */}
                 <motion.div
                     key={current}
-                    className="flex flex-col justify-center px-8 md:px-16 text-white"
+                    className="flex flex-col justify-center px-8 md:px-16 text-black"
                     variants={containerVariants}
                     initial="hidden"
                     animate="visible"
@@ -83,15 +83,14 @@ export default function HeroBanner() {
 
                     <motion.p
                         variants={itemVariants}
-                        className="mt-4 text-lg text-white/90"
+                        className="mt-4 text-lg text-black"
                     >
                         {slides[current].description}
                     </motion.p>
 
                     <motion.div variants={itemVariants}>
                         <Button
-                            color="danger"
-                            className="mt-8 w-fit font-semibold"
+                            className="mt-8 w-fit font-semibold bg-red-400"
                         >
                             See All Books
                         </Button>
