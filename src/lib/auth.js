@@ -10,7 +10,14 @@ export const auth = betterAuth({
         enabled: true,
     },
     database: mongodbAdapter(db, {
-        
+
         client
     }),
+    user: {
+        additionalFields: {
+            role: {
+                default: "reader"
+            }
+        }
+    },
 });

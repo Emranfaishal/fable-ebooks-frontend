@@ -2,18 +2,27 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
-// import { authClient } from "@/lib/auth-client";
-import { useSession, signOut, authClient } from "@/lib/auth-client";
+import { HiMenuAlt3, HiX } from "react-icons/hi";
+import { RiArrowDropDownLine } from "react-icons/ri";
+import { BiHome } from "react-icons/bi";
+import { TbCategory, TbBrandBooking } from "react-icons/tb";
+import { CiSquarePlus } from "react-icons/ci";
+import { CgProfile } from "react-icons/cg";
+import { MdLogout } from "react-icons/md";
+import { FaBriefcaseMedical } from "react-icons/fa";
+import { GiBookshelf } from "react-icons/gi";
 
-const navLinks = [
-    { label: "Browse Jobs", href: "/jobs" },
-    { label: "Companies", href: "/companies" },
-    { label: "Pricing", href: "/pricing" },
-];
+import {
+    Avatar,
+    Button,
+    Dropdown,
+    Label,
+} from "@heroui/react";
+import { authClient } from "@/lib/auth-client";
 
-export default function Navbar() {
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
+const NavbarPage = () => {
+    const [menuOpen, setMenuOpen] = useState(false);
+
     const { data: session, isPending } = authClient.useSession();
 
     if (isPending) {
@@ -21,75 +30,154 @@ export default function Navbar() {
     }
 
     const user = session?.user;
-    console.log(user)
-
-    const handleSignOut = async () => {
-        await signOut({
-            fetchOptions: {
-                onSuccess: () => {
-                    window.location.reload();
-                }
-            }
-        });
+   
+    const logout = async () => {
+        await authClient.signOut();
     };
 
     return (
         <nav className="sticky top-0 z-50 w-full px-4 py-4">
             <div className="mx-auto max-w-7xl">
-                {/* Main Navbar */}
-                <header className="flex h-20 items-center justify-between rounded-3xl border border-white/10 bg-zinc-950/70 px-6 backdrop-blur-xl">
+
+                {/* Navbar */}
+                <header className="flex p-2 items-center justify-between rounded-xl border border-white/20 bg-gray-200/90 px-6 shadow-lg backdrop-blur-xl">
+
                     {/* Logo */}
-                    <Link href="/" className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600">
-                            <span className="text-lg font-bold text-white">H</span>
-                        </div>
-                        <span className="text-2xl font-bold">
-                            <span className="text-sky-500">hire</span>
-                            <span className="text-orange-500">loop</span>
-                        </span>
+                    <Link href="/" className="flex items-center gap-2">
+                        <GiBookshelf className="text-3xl text-sky-500" />
+                        <h2 className="text-2xl font-bold">
+                            <span className="text-sky-500">Book</span>
+                            <span className="text-black">s</span>
+                        </h2>
                     </Link>
 
-                    {/* Desktop Navigation */}
-                    <div className="hidden items-center gap-8 lg:flex">
+                    {/* Desktop Menu */}
+                    <div className="hidden md:flex items-center gap-8">
+
                         <ul className="flex items-center gap-8">
-                            {navLinks.map((link) => (
-                                <li key={link.href}>
-                                    <Link href={link.href} className="text-sm font-medium text-zinc-300 transition-colors hover:text-white">
-                                        {link.label}
+                            <li>
+                                <Link
+                                    href="/"
+                                    className="flex items-center gap-1 text-sm font-medium text-black transition-colors hover:text-sky-600"
+                                >
+                                    <BiHome />
+                                    Home
+                                </Link>
+                            </li>
+
+                            <li>
+                                <Link
+                                    href="/BrowseEbooks"
+                                    className="flex items-center gap-1 text-sm font-medium text-black transition-colors hover:text-sky-600"
+                                >
+                                    <TbCategory />
+                                    BrowseEbooks
+                                </Link>
+                            </li>
+
+                            {/* {user && (
+                                <li>
+                                    <Link
+                                        href="/Dashboard"
+                                        className="flex items-center gap-1 text-sm font-medium text-black transition-colors hover:text-sky-600"
+                                    >
+                                        <TbBrandBooking />
+                                        Dashboard
                                     </Link>
                                 </li>
-                            ))}
+                            )} */}
                         </ul>
 
-                        <div className="h-6 w-px bg-white/15" />
+                        <div className="h-6 w-px bg-black/10" />
 
-                        {/* Auth Actions Conditional Rendering */}
-                        <div className="flex items-center gap-5">
-                            {isPending ? (
-                                <span className="text-sm text-zinc-400">Loading...</span>
-                            ) : user ? (
-                                <div className="flex items-center gap-4">
-                                    {user.image ? (
-                                        <img src={user.image} alt={user.name} className="h-9 w-9 rounded-full border border-white/20 object-cover" />
-                                    ) : (
-                                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-600 text-sm font-bold text-white">
-                                            {user.name?.charAt(0).toUpperCase()}
-                                        </div>
-                                    )}
-                                    <button
-                                        onClick={handleSignOut}
-                                        className="text-sm font-medium text-rose-400 transition-colors hover:text-rose-300"
+                        {/* Auth Section */}
+                        <div className="flex items-center gap-4">
+                            {user ? (
+                                <Dropdown>
+                                    <Button
+                                        className="bg-white/60 border border-black/10 backdrop-blur-md rounded-xl px-4 py-2 hover:bg-white/80"
                                     >
-                                        Sign Out
-                                    </button>
-                                </div>
-                            ) : (
+                                        <Avatar size="sm">
+                                            <Avatar.Image
+                                                src={user?.image}
+                                                alt={user?.name}
+                                                referrerPolicy="no-referrer"
+                                            />
+                                            <Avatar.Fallback>
+                                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-600 text-white font-bold">
+                                                    {user?.name?.[0]}
+                                                </div>
+                                            </Avatar.Fallback>
+                                        </Avatar>
 
+                                        <span className="text-black font-medium">
+                                            {user?.name}
+                                        </span>
+
+                                        <RiArrowDropDownLine className="text-2xl text-black" />
+                                    </Button>
+
+                                    <Dropdown.Popover className="rounded-xl border border-black/10 bg-white shadow-xl">
+                                        <Dropdown.Menu>
+
+                                            <Dropdown.Item textValue="user">
+                                                <Label>
+                                                    <p className="text-gray-500 text-sm">
+                                                        Signed in as
+                                                    </p>
+                                                    <p>{user?.email}</p>
+                                                </Label>
+                                            </Dropdown.Item>
+
+                                            <Dropdown.Item textValue="Add Facility">
+                                                <Link
+                                                    href="/Dashboard"
+                                                    className="flex items-center gap-2 w-full"
+                                                >
+                                                    <CiSquarePlus />
+                                                    Dashboard
+                                                </Link>
+                                            </Dropdown.Item>
+
+                                            <Dropdown.Item textValue="Profile">
+                                                <Link
+                                                    href="/profile"
+                                                    className="flex items-center gap-2 w-full"
+                                                >
+                                                    <CgProfile />
+                                                    Profile
+                                                </Link>
+                                            </Dropdown.Item>
+
+                                          
+
+                                            <Dropdown.Item
+                                                onClick={logout}
+                                                variant="danger"
+                                                textValue="Logout"
+                                            >
+                                                <div className="flex items-center gap-2 text-red-500">
+                                                    <MdLogout />
+                                                    Logout
+                                                </div>
+                                            </Dropdown.Item>
+
+                                        </Dropdown.Menu>
+                                    </Dropdown.Popover>
+                                </Dropdown>
+                            ) : (
                                 <>
-                                    <Link href="/signIn" className="text-sm font-medium text-indigo-400 transition-colors hover:text-indigo-300">
+                                    <Link
+                                        href="/signIn"
+                                        className="text-sm font-medium text-indigo-600 transition-colors hover:text-indigo-500"
+                                    >
                                         Sign In
                                     </Link>
-                                    <Link href="/signUp" className="rounded-xl bg-indigo-600 px-5 py-3 text-sm font-medium text-white transition-all hover:bg-indigo-500">
+
+                                    <Link
+                                        href="/signUp"
+                                        className="rounded-xl bg-sky-500 px-5 py-3 text-sm font-medium text-white transition-all hover:bg-sky-300"
+                                    >
                                         Get Started
                                     </Link>
                                 </>
@@ -97,49 +185,107 @@ export default function Navbar() {
                         </div>
                     </div>
 
-                    {/* Mobile Toggle */}
-                    <button type="button" onClick={() => setIsMenuOpen(!isMenuOpen)} className="lg:hidden" aria-label="Toggle Menu">
-                        {isMenuOpen ? <X className="h-6 w-6 text-white" /> : <Menu className="h-6 w-6 text-white" />}
+                    {/* Mobile Button */}
+                    <button
+                        onClick={() => setMenuOpen(!menuOpen)}
+                        className="md:hidden"
+                    >
+                        {menuOpen ? (
+                            <HiX className="h-6 w-6 text-black" />
+                        ) : (
+                            <HiMenuAlt3 className="h-6 w-6 text-black" />
+                        )}
                     </button>
                 </header>
 
                 {/* Mobile Menu */}
-                {isMenuOpen && (
-                    <div className="mt-3 overflow-hidden rounded-3xl border border-white/10 bg-zinc-950/95 backdrop-blur-xl lg:hidden">
-                        <ul className="flex flex-col p-6">
-                            {navLinks.map((link) => (
-                                <li key={link.href}>
-                                    <Link href={link.href} onClick={() => setIsMenuOpen(false)} className="block py-3 text-zinc-300 transition-colors hover:text-white">
-                                        {link.label}
-                                    </Link>
-                                </li>
-                            ))}
+                {/* {menuOpen && (
+                    <div className="mt-3 overflow-hidden rounded-3xl border border-white/10 bg-zinc-950/95 backdrop-blur-xl md:hidden">
+                        <div className="flex flex-col gap-4 p-6">
 
-                            <li className="mt-4 border-t border-white/10 pt-4">
-                                {isPending ? (
-                                    <span className="block py-3 text-zinc-400">Loading...</span>
-                                ) : user ? (
-                                    <div className="flex flex-col gap-3 py-2">
-                                        <span className="text-sm text-zinc-300">Hi, {user.name}</span>
-                                        <button onClick={() => { handleSignOut(); setIsMenuOpen(false); }} className="text-left py-2 text-sm font-medium text-rose-400">
-                                            Sign Out
-                                        </button>
-                                    </div>
-                                ) : (
-                                    <>
-                                        <Link href="/signIn" onClick={() => setIsMenuOpen(false)} className="block py-3 text-indigo-400">
-                                            Sign In
-                                        </Link>
-                                        <Link href="/signUp" onClick={() => setIsMenuOpen(false)} className="mt-2 flex items-center justify-center rounded-xl bg-indigo-600 px-4 py-3 font-medium text-white transition hover:bg-indigo-500">
-                                            Get Started
-                                        </Link>
-                                    </>
-                                )}
-                            </li>
-                        </ul>
+                            <Link
+                                href="/"
+                                onClick={() => setMenuOpen(false)}
+                                className="text-zinc-300 transition-colors hover:text-white"
+                            >
+                                Home
+                            </Link>
+
+                            <Link
+                                href="/allFacilities"
+                                onClick={() => setMenuOpen(false)}
+                                className="text-zinc-300 transition-colors hover:text-white"
+                            >
+                                All Facilities
+                            </Link>
+
+                            {user ? (
+                                <>
+                                    <Link
+                                        href="/myBookings"
+                                        onClick={() => setMenuOpen(false)}
+                                        className="text-zinc-300 transition-colors hover:text-white"
+                                    >
+                                        My Bookings
+                                    </Link>
+
+                                    <Link
+                                        href="/addFacility"
+                                        onClick={() => setMenuOpen(false)}
+                                        className="text-zinc-300 transition-colors hover:text-white"
+                                    >
+                                        Add Facility
+                                    </Link>
+
+                                    <Link
+                                        href="/profile"
+                                        onClick={() => setMenuOpen(false)}
+                                        className="text-zinc-300 transition-colors hover:text-white"
+                                    >
+                                        Profile
+                                    </Link>
+
+                                    <Link
+                                        href="/ManageMyFacilities"
+                                        onClick={() => setMenuOpen(false)}
+                                        className="text-zinc-300 transition-colors hover:text-white"
+                                    >
+                                        Manage My Facilities
+                                    </Link>
+
+                                    <button
+                                        onClick={() => {
+                                            logout();
+                                            setMenuOpen(false);
+                                        }}
+                                        className="text-left text-red-400"
+                                    >
+                                        Logout
+                                    </button>
+                                </>
+                            ) : (
+                                <div className="flex flex-col gap-3 pt-3 border-t border-white/10">
+                                    <Link
+                                        href="/signin"
+                                        className="text-indigo-400"
+                                    >
+                                        Sign In
+                                    </Link>
+
+                                    <Link
+                                        href="/signUp"
+                                        className="flex items-center justify-center rounded-xl bg-sky-500 px-4 py-3 font-medium text-white hover:bg-sky-500"
+                                    >
+                                        Get Started
+                                    </Link>
+                                </div>
+                            )}
+                        </div>
                     </div>
-                )}
+                )} */}
             </div>
         </nav>
     );
-}
+};
+
+export default NavbarPage;

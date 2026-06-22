@@ -5,6 +5,7 @@ import { Form, TextField, Label, InputGroup, Input, Button, Card, Link } from "@
 import { Person, Envelope, Shield, Eye, EyeClosed, CircleCheck, CircleXmark, Picture } from "@gravity-ui/icons";
 import { signUp } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
+import { Description, Radio, RadioGroup } from "@heroui/react";
 
 export default function SignUpPage() {
     const router = useRouter();
@@ -20,6 +21,7 @@ export default function SignUpPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
+    const [role, setRole] = useState("reader");
 
     const toggleVisibility = () => setIsVisible(!isVisible);
 
@@ -35,8 +37,10 @@ export default function SignUpPage() {
                 password,
                 name,
                 image,
+                role,
                 callbackURL: "/",
             });
+            console.log('data user', data);
 
             if (error) {
                 setErrorMessage(error.message || "Something went wrong. Please try again.");
@@ -167,6 +171,31 @@ export default function SignUpPage() {
                                 </InputGroup.Suffix>
                             </InputGroup>
                         </TextField>
+
+                        {/* Role Field */}
+                        <div className="flex flex-col gap-4">
+                            <Label>Subscription plan</Label>
+                            <RadioGroup defaultValue="reader" name="role" onChange={value => setRole(value)} orientation="horizontal">
+                                <Radio value="reader">
+                                    <Radio.Content>
+                                        <Radio.Control>
+                                            <Radio.Indicator />
+                                        </Radio.Control>
+                                        reader
+                                    </Radio.Content>
+
+                                </Radio>
+                                <Radio value="writer">
+                                    <Radio.Content>
+                                        <Radio.Control>
+                                            <Radio.Indicator />
+                                        </Radio.Control>
+                                        writer
+                                    </Radio.Content>
+
+                                </Radio>
+                            </RadioGroup>
+                        </div>
 
                         <Button
                             className="w-full mt-2"

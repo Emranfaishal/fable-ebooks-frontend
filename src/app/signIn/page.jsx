@@ -33,6 +33,7 @@ export default function SignInPage() {
                 password,
                 callbackURL: "/",
             });
+            console.log(data,error);
 
             if (error) {
                 setErrorMessage(error.message || "Invalid email or password.");
