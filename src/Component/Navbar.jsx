@@ -30,7 +30,8 @@ const NavbarPage = () => {
     }
 
     const user = session?.user;
-   
+    console.log(user);
+
     const logout = async () => {
         await authClient.signOut();
     };
@@ -149,7 +150,7 @@ const NavbarPage = () => {
                                                 </Link>
                                             </Dropdown.Item>
 
-                                          
+
 
                                             <Dropdown.Item
                                                 onClick={logout}
