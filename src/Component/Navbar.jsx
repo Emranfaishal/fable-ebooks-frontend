@@ -30,7 +30,7 @@ const NavbarPage = () => {
     }
 
     const user = session?.user;
-    console.log(user);
+    // console.log(user);
 
     const logout = async () => {
         await authClient.signOut();

@@ -1,119 +1,47 @@
-"use client";
-
-import React, { useState } from "react";
-import {
-    Form,
-    Fieldset,
-    TextField,
-    Label,
-    Input,
-    TextArea,
-    FieldError,
-    Select,
-    ListBox,
-    Button,
-    addToast // HeroUI-তে টোস্ট ব্যবহারের জন্য addToast সাধারণত ব্যবহৃত হ
-} from "@heroui/react";
+'use client'
+import { createBooks } from "@/lib/action/addEbooks";
 import { BookOpen } from "@gravity-ui/icons";
-
-
-export default function AddEbookForm({ publisher }) {
-    const [errors, setErrors] = useState({});
-    const [coverFile, setCoverFile] = useState(null);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-
-    const handleSubmit = async (e) => {
+import { Card, FieldError, Input, Label, TextField, Select, ListBox, TextArea, Button } from "@heroui/react";
+import { redirect } from "next/navigation";
+import { useState } from "react";
+import toast from "react-hot-toast";
+const AddEbookForm = ({ publisher }) => {
+    const [mockCompany] = useState({
+        name: "Acme Corp (Auto-filled)",
+        id: "company_123",
+        isApproved: true,
+    });
+    const onSubmit = async (e) => {
         e.preventDefault();
-
-        const formData = new FormData(e.currentTarget);
-        const data = Object.fromEntries(formData.entries());
-
-        // ক্লায়েন্ট-সাইড ভ্যালিডেশন
-        const newErrors = {};
-        if (!data.title) newErrors.title = "Title is required";
-        if (!data.genre) newErrors.genre = "Genre is required";
-        if (!data.price) newErrors.price = "Price is required";
-        if (!data.description) newErrors.description = "Description is required";
-        if (!data.fullContent) newErrors.fullContent = "Full content is required";
-        if (!coverFile) newErrors.coverUpload = "Cover image is required";
-
-        if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors);
+        if (!mockCompany.isApproved) {
+            alert("Your company profile must be approved before you can post jobs.");
             return;
         }
+        const fromData = new FormData(e.currentTarget);
 
-        setErrors({});
-        setIsSubmitting(true);
-
-        // চূড়ান্ত পে-লোড তৈরি (এখানে সমস্ত ডেটা পেয়ে যাবেন)
-        const payload = {
-            title: data.title,
-            genre: data.genre,
-            price: Number(data.price), // সংখ্যায় রূপান্তর
-            description: data.description,
-            fullContent: data.fullContent,
-            coverImage: coverFile, // পুরো ফাইল অবজেক্টটি এখানে থাকবে
-            publisherId: publisher?._id,
-            publisherName: publisher?.name,
-            status: "published",
-            isPubliclyVisible: true,
+        // const ebook = Object.fromEntries(fromData.entries());
+        const ebook = {
+            ...Object.fromEntries(fromData.entries()),
+            booksId: mockCompany.id,
+            status: "active",
+            isPubliclyVisible: true
         };
-
-        try {
-            // ডেটা দেখতে চাইলে কনসোলে চেক করতে পারেন
-            console.log("Ebook Submission Data:", payload);
-
-            // এখানে আপনার ব্যাকএন্ড API কল করুন
-            /*
-            const response = await fetch('/api/ebooks', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-            });
-            if (!response.ok) throw new Error("Failed to publish");
-            */
-
-            // সফল হলে ইউজারকে নোটিফিকেশন দিন
-            alert("Success! Ebook published successfully.");
-            // অথবা HeroUI টোস্ট ব্যবহার করতে পারেন: 
-            // addToast({ title: "Success", description: "Ebook published successfully", variant: "flat", color: "success" });
-
-            // ফর্ম রিসেট করুন
-            e.currentTarget.reset();
-            setCoverFile(null);
-
-        } catch (error) {
-            console.error(error);
-            alert("Something went wrong. Please try again.");
-        } finally {
-            setIsSubmitting(false);
+        console.log(ebook);
+        const res = await createBooks(ebook);
+        if (res.insertedId) {
+            toast.success('add to the books')
+            e.target.reset()
+            redirect('/dashboard/writerDashboard/ebook')
         }
+        // /dashboard/writerDashboard/ebook/addBooks
+
     };
-
-    const handleFileChange = (e) => {
-        if (e.target.files?.[0]) {
-            // শুধু নাম না রেখে পুরো ফাইল অবজেক্টটি স্টেটে রাখা ভালো
-            setCoverFile(e.target.files[0]);
-        }
-    };
-
-    // Light Theme Style Tokens
-    const textInputClass = "w-full text-black bg-zinc-50 border border-zinc-300 hover:bg-zinc-100 focus:border-zinc-500 rounded-lg h-12 px-3 text-sm placeholder:text-zinc-400 outline-none transition-all";
-    const fileInputClass = "w-full text-zinc-600 bg-zinc-50 border border-zinc-300 hover:bg-zinc-100 focus:border-zinc-500 rounded-lg h-12 px-3 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-zinc-200 file:text-black hover:file:bg-zinc-300 outline-none transition-all flex items-center pt-1.5 cursor-pointer";
-    const textAreaClass = "w-full text-black bg-zinc-50 border border-zinc-300 hover:bg-zinc-100 focus:border-zinc-500 rounded-lg p-3 text-sm placeholder:text-zinc-400 outline-none transition-all";
-
-    const selectBoxClass = "w-full";
-    const triggerClasses = "w-full flex items-center justify-between bg-zinc-50 border border-zinc-300 hover:bg-zinc-100 h-12 rounded-lg px-3 text-black transition-all text-sm outline-none data-[focused=true]:border-zinc-500 data-[invalid=true]:border-danger";
-    const popoverClasses = "bg-white border border-zinc-200 text-black rounded-lg shadow-xl p-1";
-    const listItemClasses = "flex items-center justify-between p-2 rounded-md hover:bg-zinc-100 cursor-pointer text-sm text-zinc-800 outline-none data-[focused=true]:bg-zinc-100";
 
     return (
-        <div className="bg-zinc-50 text-black py-12 px-4 sm:px-6 lg:px-8">
-            <div className="bg-white border border-zinc-200 rounded-xl p-8 shadow-lg">
-
-                {/* Form Header block */}
-                <div className="border-b border-zinc-200 pb-6 mb-8">
-                    <h1 className="text-2xl font-semibold tracking-tight text-black">Add New Ebook</h1>
+        <div className="max-w-7xl mx-auto p-4">
+            <Card>
+                <div className="border-b border-zinc-200 pb-6 mb-2">
+                    <h1 className="text-4xl font-bold tracking-tight text-black">Add New Ebook</h1>
                     <p className="text-zinc-500 text-sm mt-1">
                         Fill out the details below to publish your digital book to the catalog.
                     </p>
@@ -127,112 +55,109 @@ export default function AddEbookForm({ publisher }) {
                         </div>
                     )}
                 </div>
+                <form
+                    onSubmit={onSubmit}
+                    className="p-5 space-y-8"
+                >
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
 
-                {/* Hero UI Main Form Handler */}
-                <Form onSubmit={handleSubmit} className="space-y-8" validationErrors={errors} validationBehavior='aria'>
-
-                    {/* SECTION 1: Ebook Meta Information */}
-                    <Fieldset className="space-y-6 w-full">
-                        <legend className="text-lg font-medium text-zinc-800 border-b border-zinc-200 w-full pb-2 mb-2">
-                            Ebook Information
-                        </legend>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <TextField isInvalid={!!errors.title} className="flex flex-col gap-1 w-full">
-                                <Label className="text-zinc-600 font-medium text-sm">Title</Label>
-                                <Input name="title" placeholder="e.g. Mastering Next.js Server Components" className={textInputClass} />
-                                {errors.title && <FieldError className="text-xs text-danger mt-1">{errors.title}</FieldError>}
+                        {/* Title */}
+                        <div className="md:col-span-2">
+                            <TextField name="title" isRequired>
+                                <Label>Title</Label>
+                                <Input placeholder="Enter Ebook Title" className="rounded-xl" />
+                                <FieldError />
                             </TextField>
+                        </div>
 
-                            <Select className={selectBoxClass} name="genre" isInvalid={!!errors.genre}>
-                                <Label className="text-zinc-600 font-medium text-sm mb-1 block">Genre</Label>
-                                <Select.Trigger className={triggerClasses}>
-                                    <Select.Value className="text-black placeholder:text-zinc-400" />
+                        {/* Genre */}
+                        <div>
+                            <Select
+                                name="genre"
+                                isRequired
+                                className="w-full"
+                                placeholder="Select Genre"
+                            >
+                                <Label>Genre</Label>
+                                <Select.Trigger className="rounded-xl">
+                                    <Select.Value />
                                     <Select.Indicator />
                                 </Select.Trigger>
-                                {errors.genre && <span className="text-xs text-danger mt-1">{errors.genre}</span>}
-                                <Select.Popover className={popoverClasses}>
-                                    <ListBox className="outline-none">
-                                        <ListBox.Item id="technology" className={listItemClasses} textValue="Technology">Technology</ListBox.Item>
-                                        <ListBox.Item id="fiction" className={listItemClasses} textValue="Fiction">Fiction</ListBox.Item>
-                                        <ListBox.Item id="non-fiction" className={listItemClasses} textValue="Non-Fiction">Non-Fiction</ListBox.Item>
-                                        <ListBox.Item id="sci-fi" className={listItemClasses} textValue="Sci-Fi & Fantasy">Sci-Fi & Fantasy</ListBox.Item>
-                                        <ListBox.Item id="business" className={listItemClasses} textValue="Business & Finance">Business & Finance</ListBox.Item>
+                                <Select.Popover>
+                                    <ListBox>
+                                        <ListBox.Item id="Fiction" textValue="Fiction">Fiction <ListBox.ItemIndicator /></ListBox.Item>
+                                        <ListBox.Item id="Non-Fiction" textValue="Non-Fiction">Non-Fiction <ListBox.ItemIndicator /></ListBox.Item>
+                                        <ListBox.Item id="Sci-Fi" textValue="Sci-Fi">Sci-Fi & Fantasy <ListBox.ItemIndicator /></ListBox.Item>
+                                        <ListBox.Item id="Biography" textValue="Biography">Biography <ListBox.ItemIndicator /></ListBox.Item>
+                                        <ListBox.Item id="Mystery" textValue="Mystery">Mystery & Thriller <ListBox.ItemIndicator /></ListBox.Item>
+                                        <ListBox.Item id="Other" textValue="Other">Other <ListBox.ItemIndicator /></ListBox.Item>
                                     </ListBox>
                                 </Select.Popover>
                             </Select>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <TextField isInvalid={!!errors.price} className="flex flex-col gap-1 w-full">
-                                <Label className="text-zinc-600 font-medium text-sm">Price (USD)</Label>
-                                <Input name="price" placeholder="0.00" type="number" step="0.01" className={textInputClass} />
-                                {errors.price && <FieldError className="text-xs text-danger mt-1">{errors.price}</FieldError>}
-                            </TextField>
+                        {/* Price */}
+                        <TextField name="price" type="number" isRequired>
+                            <Label>Price</Label>
+                            <Input
+                                type="number"
+                                placeholder="$9.99"
+                                className="rounded-xl"
+                            />
+                            <FieldError />
+                        </TextField>
 
-                            <div className="flex flex-col gap-1 w-full">
-                                <Label className="text-zinc-600 font-medium text-sm">Cover Upload</Label>
-                                <input
-                                    name="coverUpload"
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleFileChange}
-                                    className={fileInputClass}
+                        {/* Cover Upload (Image URL হিসেবে রাখা হয়েছে) */}
+                        <div className="md:col-span-2">
+                            <TextField name="coverUrl" isRequired>
+                                <Label>Cover Upload (Image URL)</Label>
+                                <Input
+                                    type="url"
+                                    placeholder="https://example.com/ebook-cover.jpg"
+                                    className="rounded-xl"
                                 />
-                                {coverFile && <span className="text-xs text-zinc-500 mt-1">Selected: {coverFile.name}</span>}
-                                {errors.coverUpload && <span className="text-xs text-danger mt-1">{errors.coverUpload}</span>}
-                            </div>
+                                <FieldError />
+                            </TextField>
                         </div>
-                    </Fieldset>
 
-                    {/* SECTION 2: Ebook Content */}
-                    <Fieldset className="space-y-6 w-full">
-                        <legend className="text-lg font-medium text-zinc-800 border-b border-zinc-200 w-full pb-2 mb-2">
-                            Ebook Content & Details
-                        </legend>
+                        {/* Description */}
+                        <div className="md:col-span-2">
+                            <TextField name="description" isRequired>
+                                <Label>Description</Label>
+                                <TextArea
+                                    placeholder="Enter a brief summary of the ebook..."
+                                    className="rounded-xl"
+                                />
+                                <FieldError />
+                            </TextField>
+                        </div>
 
-                        <TextField isInvalid={!!errors.description} className="flex flex-col gap-1 w-full">
-                            <Label className="text-zinc-600 font-medium text-sm">Description</Label>
-                            <TextArea
-                                name="description"
-                                placeholder="Write a short book summary or promotional synopsis..."
-                                rows={3}
-                                className={textAreaClass}
-                            />
-                            {errors.description && <FieldError className="text-xs text-danger mt-1">{errors.description}</FieldError>}
-                        </TextField>
-
-                        <TextField isInvalid={!!errors.fullContent} className="flex flex-col gap-1 w-full">
-                            <Label className="text-zinc-600 font-medium text-sm">Full Content</Label>
-                            <TextArea
-                                name="fullContent"
-                                placeholder="Paste or type your complete book contents / manuscript chapters here..."
-                                rows={8}
-                                className={textAreaClass}
-                            />
-                            {errors.fullContent && <FieldError className="text-xs text-danger mt-1">{errors.fullContent}</FieldError>}
-                        </TextField>
-                    </Fieldset>
-
-                    {/* Form Actions */}
-                    <div className="flex justify-end gap-3 pt-4 border-t border-zinc-200 w-full">
-                        <Button
-                            type="button"
-                            variant="bordered"
-                            className="border-zinc-300 text-zinc-700 hover:bg-zinc-100 rounded-lg px-6 font-medium h-11"
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            type="submit"
-                            isLoading={isSubmitting}
-                            className="bg-black text-white font-semibold hover:bg-zinc-800 rounded-lg px-6 transition-colors h-11"
-                        >
-                            {isSubmitting ? "Publishing..." : "Publish"}
-                        </Button>
+                        {/* Full Content */}
+                        <div className="md:col-span-2">
+                            <TextField name="fullContent" isRequired>
+                                <Label>Full Content</Label>
+                                <TextArea
+                                    placeholder="Paste or write the entire manuscript contents here..."
+                                    className="rounded-xl"
+                                    rows={10}
+                                />
+                                <FieldError />
+                            </TextField>
+                        </div>
                     </div>
-                </Form>
-            </div>
+
+                    {/* Publish Button */}
+                    <Button
+                        type="submit"
+                        variant="outline"
+                        className="rounded-lg w-full bg-[#C5A358] text-white font-semibold"
+                    >
+                        Publish
+                    </Button>
+                </form>
+            </Card>
         </div>
     );
-}
+};
+
+export default AddEbookForm;
