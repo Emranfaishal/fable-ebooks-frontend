@@ -5,24 +5,29 @@ import { Card, FieldError, Input, Label, TextField, Select, ListBox, TextArea, B
 import { redirect } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
-const AddEbookForm = ({ publisher }) => {
-    const [mockCompany] = useState({
-        name: "Acme Corp (Auto-filled)",
-        id: "company_123",
-        isApproved: true,
-    });
+const AddEbookForm = ({ publisher, books }) => {
+    console.log('all to the books:', books)
+    // const [mockCompany] = useState({
+    //     name: "Acme Corp (Auto-filled)",
+    //     id: "company_123",
+    //     isApproved: true,
+    // });
+      
     const onSubmit = async (e) => {
         e.preventDefault();
-        if (!mockCompany.isApproved) {
-            alert("Your company profile must be approved before you can post jobs.");
-            return;
-        }
+        // if (!mockCompany.isApproved) {
+        //     alert("Your company profile must be approved before you can post jobs.");
+        //     return;
+        // }
+
         const fromData = new FormData(e.currentTarget);
 
         // const ebook = Object.fromEntries(fromData.entries());
         const ebook = {
             ...Object.fromEntries(fromData.entries()),
-            booksId: mockCompany.id,
+            booksId: books._id,
+            bookName:books.name,
+            bookLogo:books.logo,
             status: "active",
             isPubliclyVisible: true
         };

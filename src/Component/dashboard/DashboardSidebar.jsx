@@ -5,7 +5,7 @@ import Link from "next/link";
 export function DashboardSidebar() {
     const navItems = [
         { icon: House, href: '/dashboard/writerDashboard', label: "Home" },
-        { icon: Magnifier, href: '/dashboard/books', label: "Books" },
+        { icon: Magnifier, href: '/dashboard/writerDashboard/book', label: "Book" },
         { icon: Bell, href: '/dashboard/writerDashboard/ebook/addBooks', label: "Create a Book" },
         { icon: Envelope, href: '/dashboard/writerDashboard/ebook', label: "Messages" },
         { icon: Person, href: '/dashboard/profile', label: "Profile" },

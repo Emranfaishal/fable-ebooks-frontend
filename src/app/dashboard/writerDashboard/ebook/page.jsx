@@ -3,11 +3,13 @@ import { Table, Chip, Button, Tooltip } from "@heroui/react";
 import { Eye, Edit2, Trash2 } from "lucide-react";
 import { getBooks } from '@/lib/api/books';
 import Image from 'next/image';
+import { getLoggedRecruiterAllBooks } from '@/lib/api/allBooks';
 
 const EbooksPage = async () => {
-    const companyId = 'company_123';
+    // const companyId = 'company_123';
     // API থেকে বইয়ের ডাটা আনা হচ্ছে
-    const books = await getBooks(companyId) || [];
+    const book = await getLoggedRecruiterAllBooks();
+    const books = await getBooks(book._id) || [];
 
     return (
         <div className="p-6 max-w-7xl mx-auto space-y-4">
